@@ -7,7 +7,8 @@
     <description>A phone call trap</description>
     <license>MIT</license>
     <keywords>phonegap,calendar, phone, call, phone-call</keywords>
-
+    <repo>https://github.com/brurubio/cordova-phone-call-trap.git</repo>
+    
 
     <js-module src="www/PhoneCallTrap.js" name="PhoneCallTrap">
         <clobbers target="window.PhoneCallTrap" />
