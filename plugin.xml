@@ -23,6 +23,14 @@
 
         <config-file target="AndroidManifest.xml" parent="/*">
             <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+            <receiver
+                android:name=".CallStateListener"
+                android:permission="android.permission.READ_PHONE_STATE"
+            >
+                <intent-filter>
+                    <action android:name="android.intent.action.PHONE_STATE" />
+                </intent-filter>
+            </receiver>
         </config-file>
 
         <source-file src="src/android/PhoneCallTrap.java" target-dir="src/io/gvox/phonecalltrap" />
