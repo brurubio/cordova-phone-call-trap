@@ -1,15 +1,16 @@
 package io.gvox.phonecalltrap;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
+import android.content.Intent;
 import org.apache.cordova.PluginResult;
-import android.content.Context;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
 import org.json.JSONException;
 import org.json.JSONArray;
-
 
 public class PhoneCallTrap extends CordovaPlugin {
 
@@ -32,55 +33,54 @@ public class PhoneCallTrap extends CordovaPlugin {
     }
 }
 
-class CallStateListener extends PhoneStateListener {
+public class CallStateListener extends BroadcastReceiver {
 
-    private CallbackContext callbackContext;
+    private static String LOG_TAG = "MyReceiver";
 
-    public void setCallbackContext(CallbackContext callbackContext) {
-        this.callbackContext = callbackContext;
-    }
+    @Override
+    public void onReceive(final Context context, Intent intent) {
+        TelephonyManager TelephonyMgr = (TelephonyManager) cordova.getActivity().getSystemService(Context.TELEPHONY_SERVICE);
 
-    public void onCallStateChanged(int state, String incomingNumber) {
-        super.onCallStateChanged(state, incomingNumber);
+        mtelephony.listen(new PhoneStateListener(){
+            @Override
+            public void onCallStateChanged(int state, String incomingNumber) {
+                super.onCallStateChanged(state, incomingNumber);
+                JSONObject obj = new JSONObject();
+                switch (state) {
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        try {
+                            obj.put("msg", "IDLE");
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    break;
 
-        if (callbackContext == null) return;
+                    case TelephonyManager.CALL_STATE_OFFHOOK:
+                        try {
+                            obj.put("msg", "OFFHOOK");
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    break;
 
-        String msg = "";
-        JSONObject obj = new JSONObject();
-
-        switch (state) {
-            case TelephonyManager.CALL_STATE_IDLE:
-                try {
-                    obj.put("msg", "IDLE");
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    case TelephonyManager.CALL_STATE_RINGING:
+                        try {
+                            obj.put("msg", "RINGING");
+                            obj.put("number", incomingNumber);
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    break;
                 }
-            break;
 
-            case TelephonyManager.CALL_STATE_OFFHOOK:
-                try {
-                    obj.put("msg", "OFFHOOK");
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            break;
+                PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+                result.setKeepCallback(true);
 
-            case TelephonyManager.CALL_STATE_RINGING:
-                try {
-                    obj.put("msg", "RINGING");
-                    obj.put("number", incomingNumber);
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            break;
-        }
-
-        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
-        result.setKeepCallback(true);
-
-        callbackContext.sendPluginResult(result);
+                callbackContext.sendPluginResult(result);
+            }
+        }, PhoneStateListener.LISTEN_CALL_STATE);
     }
 }
