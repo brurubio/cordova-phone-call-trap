@@ -46,22 +46,39 @@ class CallStateListener extends PhoneStateListener {
         if (callbackContext == null) return;
 
         String msg = "";
+        JSONObject obj = new JSONObject();
 
         switch (state) {
             case TelephonyManager.CALL_STATE_IDLE:
-            msg = "IDLE";
+                try {
+                    obj.put("msg", "IDLE");
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             break;
 
             case TelephonyManager.CALL_STATE_OFFHOOK:
-            msg = "OFFHOOK";
+                try {
+                    obj.put("msg", "OFFHOOK");
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             break;
 
             case TelephonyManager.CALL_STATE_RINGING:
-            msg = "RINGING";
+                try {
+                    obj.put("msg", "RINGING");
+                    obj.put("number", incomingNumber);
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             break;
         }
 
-        PluginResult result = new PluginResult(PluginResult.Status.OK, msg);
+        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
         result.setKeepCallback(true);
 
         callbackContext.sendPluginResult(result);
